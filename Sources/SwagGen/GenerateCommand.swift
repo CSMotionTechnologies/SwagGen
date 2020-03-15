@@ -185,6 +185,22 @@ class GenerateCommand: Command {
 
         let context = codeFormatter.getContext()
 
+        if verbose.value {
+            do {
+                let contextData = try JSONSerialization.data(withJSONObject: context, options: .prettyPrinted)
+                guard let contextString = String(data: contextData, encoding: .utf8) else {
+                    exitWithError("Error dumping context")
+                }
+
+                standardOut("Context")
+                standardOut("----")
+                standardOut(contextString)
+                standardOut("----")
+            } catch {
+                exitWithError("Error dumping context: \(error)")
+            }
+        }
+
         //    for schema in codeFormatter.schemaTypeErrors {
         //        writeError("Couldn't calculate type for: \(schema)\(schema.metadata.description.flatMap{" \"\($0)\""} ?? "")")
         //    }
