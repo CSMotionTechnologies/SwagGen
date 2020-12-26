@@ -314,6 +314,7 @@ public class CodeFormatter {
         let successResponses = responses.filter { $0.successful }.map(getResponseContext)
         let failureResponses = responses.filter { !$0.successful }.map(getResponseContext)
 
+        context["failureResponses"] = responses.filter { ($0.statusCode ?? 0) >= 400 && ($0.statusCode ?? 0) < 500 }.flatMap(getFailureResponseContexts)
         context["responses"] = responses.map(getResponseContext)
         context["successResponse"] = successResponses.first
         context["successType"] = successResponse.flatMap(getResponseContext)?["type"]
@@ -371,6 +372,17 @@ public class CodeFormatter {
         context["example"] = ResponseExample(type: response.response.value.schema?.type).jsonString
 
         return context
+    }
+
+    func getFailureResponseContexts(_ response: OperationResponse) -> [Context] {
+        let context = getResponseContext(response)
+        let errorIdentifiers = response.response.value.description.capturedGroups(with: #"__([\w-]*)__"#).map { $0.first }
+
+        return errorIdentifiers.map {
+            var newContext = context
+            newContext["errorIdentifier"] = $0
+            return newContext
+        }
     }
 
     func getSecurityRequirementContext(_ securityRequirement: SecurityRequirement) -> Context {
@@ -545,4 +557,25 @@ public class CodeFormatter {
     func getEscapedName(_ name: String) -> String {
         return "_\(name)"
     }
+}
+
+extension String {
+
+    func capturedGroups(with pattern: String) -> [[String]] {
+        guard let regex: NSRegularExpression = try? NSRegularExpression(pattern: pattern, options: []) else {
+            return []
+        }
+
+        return regex.matches(in: self, options: [], range: NSRange(location:0, length: self.count)).map { match in
+            var results: [String] = []
+
+            for index in 1..<match.numberOfRanges {
+                let capture = (self as NSString).substring(with: match.range(at: index))
+                results.append(capture)
+            }
+
+            return results
+        }
+    }
+
 }
