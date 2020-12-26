@@ -47,6 +47,7 @@ public class CodeFormatter {
         context["enums"] = enums.map(getEnumContext)
         context["paths"] = spec.paths.map(getPathContext)
         context["operations"] = spec.operations.map(getOperationContext)
+        context["operationsFailures"] = spec.operations.flatMap(getOperationFailuresContext)
         context["tags"] = spec.tags
         context["operationsByTag"] = spec.operationsByTag
             .map { ($0, $1) }
@@ -232,6 +233,16 @@ public class CodeFormatter {
         context["operations"] = path.operations.map(getOperationContext)
 
         return context
+    }
+
+    func getOperationFailuresContext(_ operation: Swagger.Operation) -> [Context] {
+        let operationContext = getOperationContext(operation)
+        guard let failureResponseContexts = operationContext["failureResponses"] as? [Context] else { return [] }
+        return failureResponseContexts.map {
+            var newContext = operationContext
+            newContext["failureResponse"] = $0
+            return newContext
+        }
     }
 
     func getOperationContext(_ operation: Swagger.Operation) -> Context {
