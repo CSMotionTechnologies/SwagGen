@@ -10,18 +10,38 @@ public enum ResponseExample {
     case integer(Int)
     case unknown
 
-    init(type: SchemaType?, propertyName: String? = nil) {
+    init(type: SchemaType?, propertyName: String? = nil, value: String? = nil) {
         let isIdentifier = propertyName?.lowercased().hasSuffix("id") ?? false
 
         switch type {
-        case .boolean: self = .boolean(Example.bool)
-        case .string: self = .string( isIdentifier ? Example.idString : Example.string)
-        case .number: self = .number(Example.number)
-        case .integer: self = .integer(Example.integer)
-        case let .array(arraySchema): self = .array(Array(0...Example.arrayCount).map { _ in ResponseExample(arrayType: arraySchema) })
-        case let .object(objectSchema): self = ResponseExample(objectScheme: objectSchema)
-        case let .reference(referenceSchema): self = ResponseExample(type: referenceSchema.value.type)
-        case let .group(groupSchema): self = ResponseExample(groupSchema: groupSchema)
+        case .boolean:
+            self = .boolean(Example.bool)
+
+        case .string:
+            guard let value = value else {
+                self = .string( isIdentifier ? Example.idString : Example.string)
+                return
+            }
+            self = .string(value)
+
+        case .number:
+            self = .number(Example.number)
+
+        case .integer:
+            self = .integer(Example.integer)
+
+        case let .array(arraySchema):
+            self = .array(Array(0...Example.arrayCount).map { _ in ResponseExample(arrayType: arraySchema) })
+
+        case let .object(objectSchema):
+            self = ResponseExample(objectScheme: objectSchema)
+
+        case let .reference(referenceSchema):
+            self = ResponseExample(type: referenceSchema.value.type)
+
+        case let .group(groupSchema):
+            self = ResponseExample(groupSchema: groupSchema)
+
         default: self = .unknown
         }
     }
@@ -44,7 +64,7 @@ public enum ResponseExample {
     init(objectScheme: ObjectSchema) {
         var objectExample = [String: ResponseExample]()
         objectScheme.properties.forEach { property in
-            objectExample[property.name] = ResponseExample(type: property.schema.type, propertyName: property.name)
+            objectExample[property.name] = ResponseExample(type: property.schema.type, propertyName: property.name, value: property.schema.metadata.enumNames?.first)
         }
         self = .object(objectExample)
     }
