@@ -92,8 +92,14 @@ public enum ResponseExample {
     }
 
     var jsonString: String? {
+        var options: JSONSerialization.WritingOptions = [.prettyPrinted]
+
+        if #available(OSX 10.13, *) {
+            options.insert(.sortedKeys)
+        }
+
         guard case .object = self,
-              let data = try? JSONSerialization.data(withJSONObject: raw, options: .prettyPrinted) else { return String(describing: raw) }
+              let data = try? JSONSerialization.data(withJSONObject: raw, options: options) else { return String(describing: raw) }
         return String(data: data, encoding: .utf8)
     }
 }
