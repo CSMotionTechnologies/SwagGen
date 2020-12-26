@@ -63,7 +63,7 @@ public enum ResponseExample {
 
     var raw: Any {
         switch self {
-        case .unknown: return "?"
+        case .unknown: return "<?>"
         case let .boolean(bool): return bool
         case let .string(string): return string
         case let .number(double): return double
@@ -71,6 +71,12 @@ public enum ResponseExample {
         case let .array(examples): return examples.map { $0.raw }
         case let .object(object): return object.mapValues { $0.raw }
         }
+    }
+
+    var jsonString: String? {
+        guard case .object = self,
+              let data = try? JSONSerialization.data(withJSONObject: raw, options: .prettyPrinted) else { return String(describing: raw) }
+        return String(data: data, encoding: .utf8)
     }
 }
 
