@@ -10,7 +10,7 @@ public enum ResponseExample {
     case integer(Int)
     case unknown
 
-    init(type: SchemaType?, propertyName: String? = nil, value: String? = nil) {
+    init(type: SchemaType?, propertyName: String? = nil) {
         let isIdentifier = propertyName?.lowercased().hasSuffix("id") ?? false
 
         switch type {
@@ -18,11 +18,7 @@ public enum ResponseExample {
             self = .boolean(Example.bool)
 
         case .string:
-            guard let value = value else {
-                self = .string( isIdentifier ? Example.idString : Example.string)
-                return
-            }
-            self = .string(value)
+            self = .string( isIdentifier ? Example.idString : Example.string)
 
         case .number:
             self = .number(Example.number)
@@ -64,7 +60,7 @@ public enum ResponseExample {
     init(objectScheme: ObjectSchema) {
         var objectExample = [String: ResponseExample]()
         objectScheme.properties.forEach { property in
-            objectExample[property.name] = ResponseExample(type: property.schema.type, propertyName: property.name, value: property.schema.metadata.enumNames?.first)
+            objectExample[property.name] = ResponseExample(type: property.schema.type, propertyName: property.name)
         }
         self = .object(objectExample)
     }
