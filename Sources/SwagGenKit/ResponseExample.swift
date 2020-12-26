@@ -14,11 +14,11 @@ public enum ResponseExample {
         let isIdentifier = propertyName?.lowercased().hasSuffix("id") ?? false
 
         switch type {
-        case .boolean: self = .boolean(Example.bool())
-        case .string: self = .string( isIdentifier ? Example.idString() : Example.string())
-        case .number: self = .number(Example.number())
-        case .integer: self = .integer(Example.integer())
-        case let .array(arraySchema): self = .array(Array(0...Example.arrayCount()).map { _ in ResponseExample(arrayType: arraySchema) })
+        case .boolean: self = .boolean(Example.bool)
+        case .string: self = .string( isIdentifier ? Example.idString : Example.string)
+        case .number: self = .number(Example.number)
+        case .integer: self = .integer(Example.integer)
+        case let .array(arraySchema): self = .array(Array(0...Example.arrayCount).map { _ in ResponseExample(arrayType: arraySchema) })
         case let .object(objectSchema): self = ResponseExample(objectScheme: objectSchema)
         case let .reference(referenceSchema): self = ResponseExample(type: referenceSchema.value.type)
         case let .group(groupSchema): self = ResponseExample(groupSchema: groupSchema)
@@ -83,10 +83,10 @@ public enum ResponseExample {
 }
 
 private enum Example {
-    static let string = { "placeholder" }
-    static let idString = { UUID().uuidString }
-    static let bool = { Bool.random() }
-    static let number = { Double.random(in: 0...1) }
-    static let integer = { Int.random(in: 1000...10000) }
-    static let arrayCount = { Int.random(in: 2...3) }
+    static let string = "placeholder"
+    static let idString = "identifier"
+    static let bool = false
+    static let number = 0.5
+    static let integer = 1000
+    static let arrayCount = 3
 }
