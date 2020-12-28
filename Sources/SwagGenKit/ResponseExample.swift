@@ -98,9 +98,13 @@ public enum ResponseExample {
             options.insert(.sortedKeys)
         }
 
-        guard case .object = self,
-              let data = try? JSONSerialization.data(withJSONObject: raw, options: options) else { return String(describing: raw) }
-        return String(data: data, encoding: .utf8)
+        switch self {
+        case .object, .array:
+            guard let data = try? JSONSerialization.data(withJSONObject: raw, options: options) else { fallthrough }
+            return String(data: data, encoding: .utf8)
+        default:
+            return String(describing: raw)
+        }
     }
 }
 
