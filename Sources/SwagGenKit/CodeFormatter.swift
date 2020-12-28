@@ -52,7 +52,7 @@ public class CodeFormatter {
         context["operationsByTag"] = spec.operationsByTag
             .map { ($0, $1) }
             .sorted { $0.0.lowercased() < $1.0.lowercased() }
-            .map { ["name": $0, "operations": $1.map(getOperationContext)] }
+            .map { ["name": $0, "operations": $1.map(getOperationContext), "operationsFailures": $1.flatMap(getOperationFailuresContext)] }
         context["schemas"] = spec.components.schemas.map(getSchemaContent).sorted { sortContext(by: "type", value1: $0, value2: $1) }
         context["info"] = getSpecInformationContext(spec.info)
         context["servers"] = spec.servers.enumerated().map(getServerContext)
