@@ -387,11 +387,19 @@ public class CodeFormatter {
 
     func getFailureResponseContexts(_ response: OperationResponse) -> [Context] {
         let context = getResponseContext(response)
-        let errorIdentifiers = response.response.value.description.capturedGroups(with: #"__([\w-]*)__"#).map { $0.first }
+        let errorIdentifiers = response.response.value.description.capturedGroups(with: #"__([\w-]*)__"#).compactMap { $0.first }
 
         return errorIdentifiers.map {
             var newContext = context
             newContext["errorIdentifier"] = $0
+            newContext["example"] = """
+                    [
+                      {
+                        "identifier" : "\($0)",
+                        "message" : "placeholder"
+                      }
+                    ]
+                    """
             return newContext
         }
     }
